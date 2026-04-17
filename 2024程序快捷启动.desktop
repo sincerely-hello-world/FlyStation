@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=/bin/bash -c '/home/orangepi/Desktop/2024_FlyStation/start.sh'
+Hidden=false
+NoDisplay=false
+Terminal=true
+Name=飞行站开机自启
+StartupNotify=false
