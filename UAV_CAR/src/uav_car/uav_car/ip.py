@@ -42,6 +42,7 @@ class IP_Pub_Node(Node):
         self.qr_timer = self.create_timer(0.033, self.ip_pub_timer_callback)
 
     def ip_pub_timer_callback(self):
+        pass
 
     def destroy_node(self):
         super().destroy_node()

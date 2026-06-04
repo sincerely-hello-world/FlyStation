@@ -46,4 +46,8 @@ def generate_launch_description():
             package='uav_car',
             executable='led',
         ),
+        Node(
+            package='uav_car',
+            executable='servo',
+        ),
     ])

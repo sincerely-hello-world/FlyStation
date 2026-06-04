@@ -33,7 +33,8 @@ setup(
             'uart = uav_car.uart:main',
             'qrcode = uav_car.qrcode:main',
             'qrcode2 = uav_car.qrcode2:main',
-            'led = uav_car.led:main'
+            'led = uav_car.led:main',
+            'servo = uav_car.servo:main'
         ],
     },
 )

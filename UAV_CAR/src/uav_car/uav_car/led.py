@@ -36,6 +36,7 @@ class LEDNode(Node):
 
         self.create_service(Trigger, 'led1_trigger', self.timer_to_shutdown_led1)
         self.create_service(Trigger, 'led2_trigger', self.timer_to_shutdown_led2)
+        
         self.led1_timer = None
         self.led2_timer = None
 

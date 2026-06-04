@@ -40,8 +40,8 @@ class T265(Node):
         self.t265_cfg = None 
         self.timer_pub_t265 = None
         
-        self.topic_uart3_pub = self.create_publisher(String, 'uart_sender3_data_topic', topic_stack) 
-        self.topic_uart4_pub = self.create_publisher(String, 'uart_sender4_data_topic', topic_stack) 
+        self.topic_uart3_pub = self.create_publisher(String, 'uart_sender3_data_topic', topic_stack) # 给飞控的t265位置数据
+        # self.topic_uart4_pub = self.create_publisher(String, 'uart_sender4_data_topic', topic_stack) 
         self.topic_t265_pub = self.create_publisher(T265Data, 't265_data_topic', topic_stack) 
 
         self.server_t265_open = self.create_service(Empty, 't265_open_service', self.service_t265_open_callback) # 1
