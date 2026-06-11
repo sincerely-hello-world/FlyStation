@@ -26,13 +26,16 @@ setup(
     entry_points={
         'console_scripts': [
             'image_processor = uav_car.image_processor:main',
-            'camera = uav_car.camera:main',
-            
-            't265 = uav_car.t265:main',
-            'navigator = uav_car.navigator:main', 
-            'uart = uav_car.uart:main',
             'qrcode = uav_car.qrcode:main',
             'qrcode2 = uav_car.qrcode2:main',
+
+            # 2023年用到的节点
+            'uart = uav_car.uart:main',
+            't265 = uav_car.t265:main',
+            'navigator = uav_car.navigator:main', 
+
+            'camera = uav_car.camera:main',
+
             'led = uav_car.led:main',
             'servo = uav_car.servo:main'
         ],

@@ -26,8 +26,8 @@ def Meter_to_mm(value):
     
 def Meter_to_mmm(value): 
     return ('+' if value >= 0 else '-') + f"{int(abs(value) * 10000) % 100000:05d}"
-
-def TGformat(head: str, x: float, y: float, z: float, end: str, input_tip="输入的xyz数字单位均为米，输出的字符串格式见函数过程"):
+    
+def TGformat(head: str, x: float, y: float, z: float, end: str, input_tip="输入的xyz数字单位均为米，输出的字符串格式见函数过程", maxHeightZ = 2.1):
 
     
 #    原版 = 1
@@ -46,13 +46,16 @@ def TGformat(head: str, x: float, y: float, z: float, end: str, input_tip="输�
 
         # x=123.45678, y=123.45678, z=123.45678 
         # return=  '#+23456+23456+23456?'
+
+    if z > maxHeightZ:
+        z = maxHeightZ
     head = head
     x_mm = Meter_to_mmm(x)
     y_mm = Meter_to_mmm(y)
     z_mm = Meter_to_mmm(z)
     end  = ''
     
-    formatted_str = f"{head}{x_mm}{y_mm}{z_mm}{end}" # 1+ (1+5)* 3 + 1  = 20  20byte定长度字符串，方便串口解析
+    formatted_str = f"{head}{x_mm}{y_mm}{z_mm}{end}" # 1 + (1+5)* 3 + 0  = 19  19byte定长度字符串，方便串口解析
     return formatted_str
  
 if __name__ == "__main__":

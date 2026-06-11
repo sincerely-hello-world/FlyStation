@@ -18,6 +18,8 @@ from functools import partial
 class PwmServoNode(Node):
     def __init__(self):
         super().__init__('Servo')
+
+        self.pwmPolarity = 'inversed'
         self.lockAngle = 64
         self.unLockAngle = 110
         # 1. 初始化 periphery PWM (使用你定义的 chip=1, channel=0)
@@ -27,10 +29,26 @@ class PwmServoNode(Node):
 
             # 使用 for 循环批量初始化
             for i, servo in enumerate(self.Servo):
-                servo.polarity = "normal"
+                # 1. 打印初始极性
+                current_polarity = servo.polarity
+                self.get_logger().info(f"舵机 [{i}] 初始 PWM 极性: {current_polarity}")
+                
+                # 2. 尝试设置为 normal，如果失败则保持原样
+                if current_polarity != "normal":
+                    try:
+                        servo.polarity = "normal"
+                        self.get_logger().info(f"舵机 [{i}] 极性已成功设置为 normal")
+                    except OSError as e:
+                        # 捕获异常：说明硬件不支持修改，或当前状态无法更改
+                        self.get_logger().warn(f"舵机 [{i}] 无法设置为 normal (原因: {e})，将保持当前极性: {servo.polarity}")
+                else:
+                    self.get_logger().info(f"舵机 [{i}] 已经是 normal 极性，无需修改")
+                    
+                # 3. 继续完成后续的初始化配置
                 servo.frequency = 50
-                servo.duty_cycle = self.angle_to_pwnDuty(self.lockAngle)  # 初始位置
+                servo.duty_cycle = self.angle_to_pwnDuty(self.lockAngle, servo.polarity)  # 初始位置
                 servo.enable()
+                
                 self.get_logger().info(f"舵机通道 [{i}] (PWM {servo.chip}, {servo.channel}) 初始化成功！")
             self.get_logger().info("PWM 节点初始化成功！当前频率: 50Hz")
         except Exception as e:
@@ -49,20 +67,20 @@ class PwmServoNode(Node):
             angle_str = msg.data.strip()
             # 特殊动作： lock  unlock
             if angle_str == 'lock': # 俩通道执行相同的操作，接不同的接口没问题
-                self.Servo[0].duty_cycle = self.angle_to_pwnDuty(self.lockAngle)
-                self.Servo[1].duty_cycle = self.angle_to_pwnDuty(self.lockAngle)
+                self.Servo[0].duty_cycle = self.angle_to_pwnDuty(self.lockAngle, self.Servo[0].polarity)
+                self.Servo[1].duty_cycle = self.angle_to_pwnDuty(self.lockAngle, self.Servo[1].polarity)
                 self.get_logger().info(f"舵机 [{index}] 成功接收角度: {angle_str}°, 锁定状态")
                 return
             elif angle_str == 'unlock':
-                self.Servo[0].duty_cycle = self.angle_to_pwnDuty(self.unLockAngle) 
-                self.Servo[1].duty_cycle = self.angle_to_pwnDuty(self.unLockAngle)
+                self.Servo[0].duty_cycle = self.angle_to_pwnDuty(self.unLockAngle, self.Servo[0].polarity) 
+                self.Servo[1].duty_cycle = self.angle_to_pwnDuty(self.unLockAngle, self.Servo[1].polarity)
                 self.get_logger().info(f"舵机 [{index}] 成功接收角度: {angle_str}°, 投放状态")
                 return
             
             # 解析接收到的字符串为浮点数
             angle = float(angle_str)
             # 调用你的角度转占空比函数
-            duty_cycle = self.angle_to_pwnDuty(angle)
+            duty_cycle = self.angle_to_pwnDuty(angle,self.Servo[0].polarity)
             # 【核心修改】通过 index 动态控制 self.Servo 列表中对应的舵机
             self.Servo[index].duty_cycle = duty_cycle
             self.get_logger().info(
@@ -76,7 +94,7 @@ class PwmServoNode(Node):
 
 
 
-    def angle_to_pwnDuty(self, angle:float):
+    def angle_to_pwnDuty(self, angle:float, polarity:str = 'normal'):
             # 限制角度在 0 到 180 度之间
             if angle < 0.0: angle = 0.0
             if angle > 180.0: angle = 180.0
@@ -85,8 +103,10 @@ class PwmServoNode(Node):
             # 0度   -> 0.5ms 脉宽 -> 占空比 = 0.5ms / 20ms = 0.025 (2.5%)
             # 180度 -> 2.5ms 脉宽 -> 占空比 = 2.5ms / 20ms = 0.125 (12.5%)
             # 公式: duty = 0.025 + (angle / 180.0) * (0.125 - 0.025)
-            duty =  (0.025 + (angle / 180.0) * 0.10) # servo.polarity = "normal" # 强制将极性纠正为高电平有效 (normal)
-            # duty_cycle = (180-angle/180.0) * 0.1 + 0.875  # servo.polarity = "inversed" 但是貌似rk3855 pwm输出是是默认为"inversed" 占空比表示低电平，额
+            if polarity == 'normal':
+                duty =  (0.025 + (angle / 180.0) * 0.10) # servo.polarity = "normal" # 强制将极性纠正为高电平有效 (normal)
+            elif polarity == 'inversed':
+                duty = (180-angle/180.0) * 0.1 + 0.875  # servo.polarity = "inversed" 但是貌似rk3855 pwm输出是是默认为"inversed" 占空比表示低电平，额
             return duty
     
     

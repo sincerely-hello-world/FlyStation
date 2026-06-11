@@ -1,5 +1,5 @@
 import math,time
-import uav_car_unit.utils_ros as ur
+# import uav_car_unit.utils_ros as ur
 
 import rclpy                                     
 from rclpy.node import Node
@@ -13,11 +13,13 @@ from uav_car_interfaces.srv import ControlService
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup,ReentrantCallbackGroup# 读串口操作，禁用ReentrantCallbackGroup，避免同一回调创建多个串口实例，导致崩溃
 
+from uav_car.my_format import TGformat
+
 class Navigator(Node):
     def __init__(self, name):
         super().__init__(name) 
         self.topic_stack = 10
-
+        self.heightMax = 2.1 # 米
         self.hand_active = False # 手动控制模式标志！
         
         self.get_logger().warning('navigator initialize') 
@@ -57,7 +59,7 @@ class Navigator(Node):
     def sync_position_data(self, msg: T265Data):
         # 处理接收到的t265数据，发布到uart3主题
         self.pos = msg  # 更新最新的t265数据到成员变量
-        if abs(self.pos.pos_z ) > 2.1:
+        if abs(self.pos.pos_z ) > self.heightMax:
             msg_land_cmd = String()
             msg_land_cmd.data = 'S' # 0x53 Land
             self.topic_uart4_pub.publish(msg_land_cmd) 
@@ -78,10 +80,11 @@ class Navigator(Node):
             modified_msg = 'G' + request.req[1:]  # 替换首字母为 G
             msg.data = modified_msg
             self.topic_uart4_pub.publish(msg)
-            # 激活手动优先级：屏蔽后续 G 消息
+            # 激活手动优先级：屏蔽后续 编程控制 消息
             self.hand_active = True
             self.get_logger().warning(f"进入手动控制模式，屏蔽编程位置控制")
-            
+        
+
         elif request.req == 'takeoff':
         # linux uart3 - MCU uart7 t265实时数据  t265就绪起飞
         # linux uart4 - MCU uart2 其他指令：降落  飞向定点 
@@ -92,7 +95,32 @@ class Navigator(Node):
             self.topic_uart4_pub.publish(msg)   
         elif request.req == 'normalLand': # 降落指令 land
             msg.data = 'U' # 0x55
-            self.topic_uart4_pub.publish(msg)   
+            self.topic_uart4_pub.publish(msg)
+
+        elif request.req == 'hover':
+            msg.data = TGformat('G',self.pos.pos_x, self.pos.pos_y, self.pos.pos_z,'')
+            self.topic_uart4_pub.publish(msg)
+            if msg.data.startswith('G') and len(msg.data) == 19:
+                self.get_logger().warning(f"悬停呼唤成功")
+
+        elif request.req == 'down40':
+            pos_z_down = self.pos.pos_z-0.4
+            if pos_z_down <  0 : # 最低高度
+                pos_z_down = self.heightMax
+            msg.data = TGformat('G',self.pos.pos_x, self.pos.pos_y, pos_z_down,'')
+            self.topic_uart4_pub.publish(msg)
+            if msg.data.startswith('G') and len(msg.data) == 19:
+                self.get_logger().warning(f"下降呼唤成功")
+
+        elif request.req == 'up40':
+            pos_z_up = self.pos.pos_z+0.4
+            if pos_z_up > self.heightMax : # 限制最大高度
+                pos_z_up = self.heightMax
+            msg.data = TGformat('G',self.pos.pos_x, self.pos.pos_y, pos_z_up,'')
+            self.topic_uart4_pub.publish(msg)
+            if msg.data.startswith('G') and len(msg.data) == 19:
+                self.get_logger().warning(f"上升呼唤成功")
+
         elif request.req.startswith('G') and len(request.req) == 19 and self.hand_active == False :  # 首字母是 'G' 且总长度为 19, 并且无手动干预时，编程控制飞往目标点
             msg.data = request.req
             self.topic_uart4_pub.publish(msg)

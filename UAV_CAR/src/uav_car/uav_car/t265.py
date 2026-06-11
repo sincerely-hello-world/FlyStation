@@ -221,7 +221,7 @@ def extract_digits(num):
     reverse_hundred_dig = int(abs(num) * 1000 % 10) + 30
     reverse_thousand_dig = int(abs(num) * 10000 % 10) + 30
     return sign + " ", str(single_dig)+ " ", str(reverse_single_dig)+ " ", str(reverse_ten_dig)+ " ", str(reverse_hundred_dig)+ " ", str(reverse_thousand_dig) + " "
-
+    
 
 # ros2 回调组说明
 # https://blog.csdn.net/m0_73800387/article/details/138439256

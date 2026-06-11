@@ -46,15 +46,15 @@ class LEDNode(Node):
         self.led1.write(self.LED_OFF)
         self.led1_timer.cancel()
         self.led1_timer = None
-        self.get_logger().info('LED1 trigger off')
+        # self.get_logger().info('LED1 trigger off')
 
     def timer_to_shutdown_led1(self,request, response):
-        self.get_logger().info('LED1 trigger on')
+        # self.get_logger().info('LED1 trigger on')
         self.led1.write(self.LED_ON)
         if self.led1_timer is not None:
             self.led1_timer.cancel()
             self.led1_timer = None
-        self.led1_timer = self.create_timer(0.79, self.led1_turn_off)
+        self.led1_timer = self.create_timer(1.0, self.led1_turn_off)
         response.message = "LED1: trigger ok "
         return response
 
@@ -62,10 +62,10 @@ class LEDNode(Node):
         self.led2.write(self.LED_OFF)
         self.led2_timer.cancel()
         self.led2_timer = None
-        self.get_logger().info('LED2 trigger off')
+        # self.get_logger().info('LED2 trigger off')
 
     def timer_to_shutdown_led2(self,request, response):
-        self.get_logger().info('LED2 trigger on')
+        # self.get_logger().info('LED2 trigger on')
         self.led2.write(self.LED_ON)
         if self.led2_timer is not None:
             self.led2_timer.cancel()

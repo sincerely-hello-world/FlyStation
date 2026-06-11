@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Exec=/bin/bash -c '/home/orangepi/Desktop/2024_FlyStation/start.sh'
+Exec=/bin/bash -c '/home/orangepi/Desktop/FlyStation/start.sh'
 Hidden=false
 NoDisplay=false
 Terminal=true
-Name=飞行站开机自启
+Name=2023飞行站开机自启
 StartupNotify=false
