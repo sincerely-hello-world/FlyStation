@@ -30,6 +30,7 @@ class PwmServoNode(Node):
             # 使用 for 循环批量初始化
             for i, servo in enumerate(self.Servo):
                 # 1. 打印初始极性
+
                 current_polarity = servo.polarity
                 self.get_logger().info(f"舵机 [{i}] 初始 PWM 极性: {current_polarity}")
                 
@@ -43,11 +44,11 @@ class PwmServoNode(Node):
                         self.get_logger().warn(f"舵机 [{i}] 无法设置为 normal (原因: {e})，将保持当前极性: {servo.polarity}")
                 else:
                     self.get_logger().info(f"舵机 [{i}] 已经是 normal 极性，无需修改")
-                    
-                # 3. 继续完成后续的初始化配置
+                
                 servo.frequency = 50
                 servo.duty_cycle = self.angle_to_pwnDuty(self.lockAngle, servo.polarity)  # 初始位置
                 servo.enable()
+
                 
                 self.get_logger().info(f"舵机通道 [{i}] (PWM {servo.chip}, {servo.channel}) 初始化成功！")
             self.get_logger().info("PWM 节点初始化成功！当前频率: 50Hz")
@@ -96,6 +97,7 @@ class PwmServoNode(Node):
 
     def angle_to_pwnDuty(self, angle:float, polarity:str = 'normal'):
             # 限制角度在 0 到 180 度之间
+            # print(f"极性是{polarity}")
             if angle < 0.0: angle = 0.0
             if angle > 180.0: angle = 180.0
 
@@ -104,9 +106,9 @@ class PwmServoNode(Node):
             # 180度 -> 2.5ms 脉宽 -> 占空比 = 2.5ms / 20ms = 0.125 (12.5%)
             # 公式: duty = 0.025 + (angle / 180.0) * (0.125 - 0.025)
             if polarity == 'normal':
-                duty =  (0.025 + (angle / 180.0) * 0.10) # servo.polarity = "normal" # 强制将极性纠正为高电平有效 (normal)
+                duty =  0.025 + (angle / 180.0) * 0.10 # servo.polarity = "normal" # 强制将极性纠正为高电平有效 (normal)
             elif polarity == 'inversed':
-                duty = (180-angle/180.0) * 0.1 + 0.875  # servo.polarity = "inversed" 但是貌似rk3855 pwm输出是是默认为"inversed" 占空比表示低电平，额
+                duty = (180-angle)/180.0 * 0.1 + 0.875  # servo.polarity = "inversed" 但是貌似rk3855 pwm输出是是默认为"inversed" 占空比表示低电平，额
             return duty
     
     
