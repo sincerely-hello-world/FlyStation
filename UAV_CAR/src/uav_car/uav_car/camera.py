@@ -346,8 +346,8 @@ class camNode(Node):
             self.client_led1_trigger.call_async(Trigger.Request())
             self.client_led2_trigger.call_async(Trigger.Request())
             
-        cv2.imshow('USB Camera vedio', frame)
-        cv2.waitKey(1) # ← 关键！1ms 就够了，不会明显卡顿  # 必须有！否则窗口不刷新
+        # cv2.imshow('USB Camera vedio', frame)
+        # cv2.waitKey(1) # ← 关键！1ms 就够了，不会明显卡顿  # 必须有！否则窗口不刷新
 
     def destroy_node(self):
         # 释放资源

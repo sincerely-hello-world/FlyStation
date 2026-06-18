@@ -37,7 +37,9 @@ setup(
             'camera = uav_car.camera:main',
 
             'led = uav_car.led:main',
-            'servo = uav_car.servo:main'
+            'servo = uav_car.servo:main',
+            
+            'heartc = uav_car.heartc:main',
         ],
     },
 )

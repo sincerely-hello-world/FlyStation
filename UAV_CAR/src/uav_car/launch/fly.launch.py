@@ -10,6 +10,11 @@ def generate_launch_description():
     # linktrack_param_file_lidar = "/home/orangepi/Desktop/UAV_CAR__Test/UAV_CAR/src/bluesea-ros2/bluesea-ros2/params/uart_lidar.yaml"
     # 定义所有节点
 
+    node_Heartc = Node(
+        package='uav_car',
+        executable='heartc',
+    )
+
     node_T265 = Node(
         package='uav_car',
         executable='t265',
@@ -49,57 +54,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        
         node_T265,
         reg_T265_start,
         node_led,
         node_servo,
-        node_camera
-
-
+        node_camera,
+        node_Heartc,
     ])
-
-
-
-
-        # Node(
-        #     package='uav_car',
-        #     executable='t265',
-        # ),
-
-        # # Node(
-        # #     package='uav_car',
-        # #     executable='image_processor',
-        # # ),
-
-        # # Node(
-        # #     package='uav_car',
-        # #     executable='qrcode',
-        # # ),
-
-        # # Node(
-        # #     package='uav_car',
-        # #     executable='qrcode2',
-        # # ),
-
-        # Node(
-        #     package='uav_car',
-        #     executable='navigator',
-        # ),
-
-        # Node(
-        #     package='uav_car',
-        #     executable='uart',
-        # ),
-
-        # Node(
-        #     package='uav_car',
-        #     executable='led',
-        # ),
-        # Node(
-        #     package='uav_car',
-        #     executable='servo',
-        # ),
-        # Node(
-        #     package='uav_car',
-        #     executable='camera',
-        # ),

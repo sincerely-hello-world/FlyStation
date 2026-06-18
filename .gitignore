@@ -1,3 +1,14 @@
 UAV_CAR/*
 !UAV_CAR/src/
 run_log/*
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# # 1. 强制递归清除所有 __pycache__ 文件夹的 Git 追踪
+# git rm -r --cached "**/__pycache__/"
+
+# # 2. 强制递归清除所有 .pyc 文件的 Git 追踪
+# git rm -r --cached "**/*.pyc"
